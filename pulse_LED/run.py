@@ -3,47 +3,22 @@
 from time import sleep
 import RPi.GPIO as GPIO
 
-def setup(buttons, lights):
+def setup(light):
     GPIO.setmode(GPIO.BOARD)
-
-    GPIO.setup(buttons, GPIO.IN, pull_up_down=GPIO.PUD_UP) 
-    GPIO.setup(lights, GPIO.OUT, initial=GPIO.LOW)
-
-toggle = lambda pin: GPIO.output(pin, not GPIO.input(pin))
-off    = lambda pin: GPIO.output(pin, GPIO.LOW)
-on     = lambda pin: GPIO.output(pin, GPIO.HIGH)
-
-def light(pin, duration=1):
-    on(pin)
-    sleep(duration)
-    off(pin)
-
-def adjust(value, up, pow=1.5):
-    value = value * pow if up else value / pow
-    value = min(value, 100)
-    value = max(value, 1)
-
-    new_direction = up and value < 100 or not up and value == 1
-    
-    return value, new_direction
+    GPIO.setup(light, GPIO.OUT, initial=GPIO.LOW)
 
 if __name__ == '__main__':
-    button = 7
-    white = 8
-    
-    setup(button, white)
+    led = 8
+    setup(led)
 
-    pwm = GPIO.PWM(white, 1000)
-    pwm.start(0)
-    
-    brightness = 1
-    increase = True
+    pwm = GPIO.PWM(led, 50)
+    pwm.start(5)
     
     try:
         while True:
-            brightness, increase = adjust(brightness, increase)
-            pwm.ChangeDutyCycle(brightness)
-            sleep(0.05)
+            for dc in range(5, 101, 5) + range(100, 5, -5):
+                pwm.ChangeDutyCycle(dc)
+                sleep(0.05)
 
     except KeyboardInterrupt:
         pass
