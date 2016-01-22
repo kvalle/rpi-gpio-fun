@@ -1,0 +1,31 @@
+Connections
+
+    Breadboard GPIO pin    15 19 21 23
+    ..via input pin        10  9  7  6
+    ..controls segment      G  F  A  B
+
+                              +---+
+                              | 8.|
+                              +---+
+
+    Segment                 E  D  C DP
+    ..using input pin       1  2  4  5
+    ..controlled by GPIO   18 22 24 26
+
+
+Activations to display numbers:
+
+    Segment:   A B C D E F G
+    Input pin: 7 6 4 2 1 9 10
+
+    Number 1:  0 1 1 0 0 0 0
+    Number 2:  1 1 0 1 1 0 1
+    Number 3:  1 1 1 1 0 0 1
+    Number 4:  0 1 1 0 0 1 1
+    Number 5:  1 0 1 1 0 0 1
+    Number 6:  1 0 1 1 1 1 1
+    Number 7:  1 1 1 0 0 0 0
+    Number 8:  1 1 1 1 1 1 1
+    Number 9:  1 1 1 0 0 1 1
+    Number 0:  1 1 1 1 1 1 0
+
