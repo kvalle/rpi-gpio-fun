@@ -9,8 +9,3 @@ I have the Pi 1 model B (rev 2):
 And the Pi 2 model B:
 
 ![Cheat sheet for Pi 2B](gpio-cheat-sheet-Pi-2B.png)
-
-
-## Links
-
-- [RPi.GPIO Python docs](http://sourceforge.net/p/raspberry-gpio-python/wiki/Examples/)
