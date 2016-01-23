@@ -1,0 +1,13 @@
+Connections
+
+    Breadboard GPIO pin    15 19 21 23
+    ..via input pin        10  9  7  6
+    ..controls segment      G  F  A  B
+
+                              +---+
+                              | 8.|
+                              +---+
+
+    Segment                 E  D  C DP
+    ..using input pin       1  2  4  5
+    ..controlled by GPIO   18 22 24 26
