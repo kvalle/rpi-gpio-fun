@@ -12,65 +12,36 @@ def setup(lights):
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(lights, GPIO.OUT, initial=GPIO.LOW)
 
-def next(links, current, history, bad):
-    possible = links[current]
-
-    # a
-    # b
-    # g
-    # e
-    # f
-    # a
-
-    # current = e
-    # history = [g, b]
-
-    if len(history) > 0 and history[0] in possible:
-        possible.remove(history[0])
-
-    for b in bad:
-        if history[:2] == bad[b] and b in possible:
-            possible.remove(b)
-
-    return random.choice(possible)
+def next(history, segments):
+    next = random.choice([n for n in segments if history in segments[n]])
+    return (history[1], next)
 
 if __name__ == '__main__':
-    a, b, c, d, e, f, g = 21, 23, 24, 22, 18, 19, 15
-    #a, b, c, d, e, f, g = "a", "b", "c", "d", "e", "f", "g"
+    a, b, c, d, e, f, g  =  21,  23,  24,  22,  18,  19,  15
     leds = [a, b, c, d, e, f, g]
 
-    links = {
-        a: [f, b],
-        b: [a, c, g],
-        c: [b, d, g],
-        d: [c, e],
-        e: [d, f, g],
-        f: [a, e, g],
-        g: [b, c, e, f]
-    }
-
-    bad = {
-        a: [b, g],
-        b: [a, g],
-        f: [e, g],
-        e: [f, g]
+    segments = {
+        a: [(c, b), (g, b), (e, f), (g, f)],
+        b: [(f, a), (d, c), (e, g), (f, g)],
+        c: [(a, b), (e, d), (e, g), (f, g)],
+        d: [(b, c), (g, c), (f, e), (g, e)],
+        e: [(c, d), (a, f), (b, g), (c, g)],
+        f: [(b, a), (d, e), (b, g), (c, g)],
+        g: [(a, b), (d, c), (d, e), (a, f)]
     }
 
     setup(leds)
 
-    active = g
-    history = []
-    print active
-
+    history = (e, f)
+    
     try:
         while True:
-            history = [active] + history[:4]
-            active = next(links, active, history[1:], bad)
+            history = next(history, segments)
 
             GPIO.output(history[0], GPIO.LOW)
-            GPIO.output(active, GPIO.HIGH)
-            print active
-            sleep(0.2)
+            GPIO.output(history[1], GPIO.HIGH)
+
+            sleep(0.1)
 
     except KeyboardInterrupt:
         pass
