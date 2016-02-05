@@ -1,0 +1,1 @@
+Connecting up RGB LED to 3.3 volt. Resistance red > green > blue, to get the brightness about equal.
