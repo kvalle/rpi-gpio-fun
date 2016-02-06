@@ -3,11 +3,20 @@
 import RPi.GPIO as gpio
 from time import sleep
 
-ds=24
-clock=26
-latch=22
+# shift register
+ds    = 24
+clock = 26
+latch = 22
 
+# buttons
+inc   = 18
+count = 16
+
+# waiting time for clock pulse
 pause=0.1
+
+# variable for keeping track of what to show next
+counter = 0
 
 def setup():
     gpio.setmode(gpio.BOARD)
@@ -15,13 +24,11 @@ def setup():
     gpio.setup([ds, clock, latch], gpio.OUT)
     gpio.output([ds, clock, latch], gpio.LOW)
 
-def cleanup():
-    gpio.output([ds, clock, latch], gpio.LOW)
-    gpio.cleanup()
+    gpio.setup([inc, count], gpio.IN, pull_up_down=gpio.PUD_DOWN)
 
 def tick(pin):
     gpio.output(pin, gpio.HIGH)
-    sleep(0.1)
+    sleep(0.01)
     gpio.output(pin, gpio.LOW)
 
 def set_value(value):
@@ -59,18 +66,32 @@ def set_number(num):
 
     set_value(numbers[num])
 
+def increment(channel):
+    global counter
+    counter = (counter + 1) % 10
+
+def display_count(channel):
+    global counter
+    set_number(counter)
+    counter = 0
+
 def main():
     setup()
+
+    gpio.add_event_detect(inc, gpio.RISING, bouncetime=200)
+    gpio.add_event_callback(inc, increment)
+
+    gpio.add_event_detect(count, gpio.RISING, bouncetime=200)
+    gpio.add_event_callback(count, display_count)
+
     try:
         while True:
-            for i in range(10):
-                set_number(i)
-                sleep(.5)
+            sleep(1)
 
     except KeyboardInterrupt:
-        print "EXIT"
-        set_value(0)
-        cleanup()
+        gpio.cleanup()
+
+    print "done"
 
 if __name__=="__main__":
     main()
