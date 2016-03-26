@@ -6,12 +6,16 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "raspi-dev"
 
   config.vm.provision "shell", inline: <<-SCRIPT
-    echo `whoami`
-  sudo apt-get update
-    sudo apt-get install python-pip -y
-    sudo apt-get install git -y
-    sudo pip install PyYAML
+    apt-get update
+    
+    apt-get install python-pip -y
+    apt-get install python-dev -y
+    pip install RPi.GPIO
+
+    apt-get install git -y
+    pip install PyYAML
     git clone https://github.com/kvalle/dotfiles.git
+    chown -R vagrant dotfiles
 SCRIPT
 
   config.vm.provider "virtualbox" do |vb|
