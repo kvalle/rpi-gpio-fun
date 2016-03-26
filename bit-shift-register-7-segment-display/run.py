@@ -24,7 +24,7 @@ def setup():
     gpio.setup([ds, clock, latch], gpio.OUT)
     gpio.output([ds, clock, latch], gpio.LOW)
 
-    gpio.setup([inc, count], gpio.IN, pull_up_down=gpio.PUD_DOWN)
+    gpio.setup([inc, count], gpio.IN, pull_up_down=gpio.PUD_UP)
 
 def tick(pin):
     gpio.output(pin, gpio.HIGH)
