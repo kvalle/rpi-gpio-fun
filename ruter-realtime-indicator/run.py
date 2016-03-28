@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 # encoding: UTF-8
 
+import warnings
 import RPi.GPIO as gpio
-from time import sleep
 
-# shift register
-ds    = 24
-clock = 26
-latch = 22
+import display
 
 # buttons
 inc   = 18
@@ -25,60 +22,19 @@ led_30 = 19
 led_40 = 21
 led_50 = 23
 
-def tick(pin):
-    gpio.output(pin, gpio.HIGH)
-    sleep(0.01)
-    gpio.output(pin, gpio.LOW)
-
-def set_value(value):
-    for i in range(8):
-        bitwise=0x80>>i
-        val = gpio.HIGH if bitwise&value else gpio.LOW
-        gpio.output(ds, val)
-        tick(clock)
-    tick(latch)
-
-def set_number(num):
-    # individual segments
-    a   = 4   # 0b00000100
-    b   = 8   # 0b00001000
-    c   = 64  # 0b01000000
-    d   = 32  # 0b00100000
-    e   = 16  # 0b00010000
-    f   = 2   # 0b00000010
-    g   = 1   # 0b00000001
-    dot = 128 # 0b10000000
-
-    # connecting segments to number shapes
-    numbers = {
-        0: a | b | c | d | e | f,
-        1: b | c,
-        2: a | b | g | e | d,
-        3: a | b | c | d | g,
-        4: b | c | f | g,
-        5: a | c | d | f | g,
-        6: a | c | d | e | f | g,
-        7: a | b | c,
-        8: a | b | c | d | e | f | g,
-        9: a | b | c | d | f | g
-    }
-
-    set_value(numbers[num])
-
 def increment(channel):
     global counter
     counter = (counter + 1) % 10
 
 def display_count(channel):
     global counter
-    set_number(counter)
+    display.set_number(counter)
     counter = 0
 
 def setup():
     gpio.setmode(gpio.BOARD)
 
-    gpio.setup([ds, clock, latch], gpio.OUT)
-    gpio.output([ds, clock, latch], gpio.LOW)
+    display.setup()
 
     gpio.setup([led_dir1, led_dir2], gpio.OUT)
     gpio.output(led_dir2, gpio.LOW)
@@ -93,14 +49,16 @@ def setup():
     gpio.add_event_callback(count, display_count)
 
 def cleanup():
-    set_value(0)
+    display.cleanup()
+    warnings.simplefilter("ignore")
     gpio.cleanup()
+    warnings.resetwarnings()
 
 def main():
     setup()
 
     try:
-        set_number(0)
+        display.set_number(0)
         raw_input("Press ENTER to exit")
     finally:
         cleanup()
