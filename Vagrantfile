@@ -11,6 +11,7 @@ Vagrant.configure("2") do |config|
     apt-get install python-pip -y
     apt-get install python-dev -y
     pip install RPi.GPIO
+    pip install python-dateutil
 
     apt-get install git -y
     pip install PyYAML
