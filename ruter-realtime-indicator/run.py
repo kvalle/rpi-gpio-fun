@@ -6,47 +6,38 @@ import RPi.GPIO as gpio
 
 import display
 
-# buttons
-inc   = 18
-count = 16
+mode = 0
 
-# variable for keeping track of what to show next
-counter = 0
+# buttons
+buttons = [18, 16]
+mode1_btn = 18
+mode2_btn = 16
 
 # LEDs
-led_dir1 = 10
-led_dir2 = 8
-led_10 = 13
-led_20 = 15
-led_30 = 19
-led_40 = 21
-led_50 = 23
+leds = [10, 8]
+mode1_led = 10
+mode2_led = 8
 
-def increment(channel):
-    global counter
-    counter = (counter + 1) % 10
+def set_mode_led(mode):
+    for i, pin in enumerate(leds):
+        gpio.output(pin, gpio.HIGH if i == mode else gpio.LOW)
 
-def display_count(channel):
-    global counter
-    display.set_number(counter)
-    counter = 0
+def set_mode(channel):
+    mode = buttons.index(channel)
+    set_mode_led(mode)
 
 def setup():
     gpio.setmode(gpio.BOARD)
 
     display.setup()
 
-    gpio.setup([led_dir1, led_dir2], gpio.OUT)
-    gpio.output(led_dir2, gpio.LOW)
-    gpio.output(led_dir1, gpio.HIGH)
+    gpio.setup(leds, gpio.OUT)
+    gpio.output(leds, gpio.LOW)
 
-    gpio.setup([inc, count], gpio.IN, pull_up_down=gpio.PUD_UP)
-
-    gpio.add_event_detect(inc, gpio.RISING, bouncetime=200)
-    gpio.add_event_callback(inc, increment)
-
-    gpio.add_event_detect(count, gpio.RISING, bouncetime=200)
-    gpio.add_event_callback(count, display_count)
+    gpio.setup(buttons, gpio.IN, pull_up_down=gpio.PUD_UP)
+    for pin in buttons:
+        gpio.add_event_detect(pin, gpio.RISING, bouncetime=200)
+        gpio.add_event_callback(pin, set_mode)
 
 def cleanup():
     display.cleanup()
@@ -58,7 +49,8 @@ def main():
     setup()
 
     try:
-        display.set_number(0)
+        #display.set_number(0)
+        set_mode_led(mode)
         raw_input("Press ENTER to exit")
     finally:
         cleanup()
