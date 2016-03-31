@@ -21,12 +21,6 @@ led_10s_mapping = {
 }
 led_10s_pins = led_10s_mapping.keys()
 
-led_10 = 13
-led_20 = 15
-led_30 = 19
-led_40 = 21
-led_50 = 23
-
 ## "public" methods
 
 def setup():
