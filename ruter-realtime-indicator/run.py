@@ -30,7 +30,8 @@ def refresh_ruter_data():
     print
 
 def update_display(index):
-    display.set_number(minutes[stops[index]])
+    stop = stops[index]
+    display.set_number(minutes[stop] if stop in minutes else 1000)
 
 def update():
     update_display(mode)
