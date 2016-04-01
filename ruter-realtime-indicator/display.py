@@ -37,13 +37,21 @@ def cleanup():
     gpio.cleanup()
     warnings.resetwarnings()
 
+def set_char(char):
+    char = char.upper()
+    if char in "EH":
+        set_display_character(char)
+    else:
+        raise ValueError("Not supported: " + char)
+
 def set_number(num):
-    if num > 59:
-        set_hightest_led()
-        set_display_value(0)
+    if num < 0:
+        set_display_character('E') 
+    elif num > 59:
+        set_display_character('H')
     else:
         set_led_number(num)
-        set_display_number(num % 10)
+        set_display_character(str(num % 10))
 
 ## Code for driving the five 10-indicator LEDs
 
@@ -70,7 +78,7 @@ def set_display_value(value):
         tick(clock)
     tick(latch)
 
-def set_display_number(num):
+def set_display_character(num):
     # individual segments' active bits
     a   = 4   # 0b00000100
     b   = 8   # 0b00001000
@@ -84,16 +92,18 @@ def set_display_number(num):
     # bit-patterns for activating correct segments
     # to form the right number shapes
     numbers = {
-        0: a | b | c | d | e | f,
-        1: b | c,
-        2: a | b | g | e | d,
-        3: a | b | c | d | g,
-        4: b | c | f | g,
-        5: a | c | d | f | g,
-        6: a | c | d | e | f | g,
-        7: a | b | c,
-        8: a | b | c | d | e | f | g,
-        9: a | b | c | d | f | g
+        '0': a | b | c | d | e | f,
+        '1': b | c,
+        '2': a | b | g | e | d,
+        '3': a | b | c | d | g,
+        '4': b | c | f | g,
+        '5': a | c | d | f | g,
+        '6': a | c | d | e | f | g,
+        '7': a | b | c,
+        '8': a | b | c | d | e | f | g,
+        '9': a | b | c | d | f | g,
+        'H': b | c | e | f | g,
+        'E': a | d | e | f | g
     }
 
     set_display_value(numbers[num])

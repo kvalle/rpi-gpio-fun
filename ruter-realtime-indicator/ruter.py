@@ -23,9 +23,8 @@ def get_raw_data(stop_id):
         raise RuterConnectionException(msg)
     try:
         return response.json()
-    except e:
-        # todo: log response.text
-        raise RuterConnectionException("Unable to parse JSON from Ruter")
+    except Exception, e:
+        raise RuterConnectionException("Unable to parse JSON from Ruter", e)
 
 def get_next_departures(stop_id):
     json = get_raw_data(stop_id)
@@ -48,8 +47,7 @@ def minutes_until(timestamp):
 def minutes_until_next(stop_id):
     departures = get_next_departures(stop_id)
     return { 
-        dest: minutes_until(min(departures[dest]))
-        for dest in departures
+        dest: minutes_until(min(departures[dest])) for dest in departures
     }
 
 ## "main"
