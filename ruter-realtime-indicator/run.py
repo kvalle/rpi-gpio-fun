@@ -26,7 +26,7 @@ def refresh_ruter_data():
     minutes = ruter.minutes_until_next(config.stop_id)
 
     for dest, mins in minutes.iteritems():
-        print "{} -> {}".format(dest.encode('UTF-8'), mins)
+        print "[{:2d} min] {}".format(mins, dest.encode('UTF-8'))
     print
 
 def update_display(index):
