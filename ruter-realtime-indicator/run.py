@@ -37,6 +37,7 @@ def refresh_ruter_data():
             print dests
             print "   ", departure_times
     except ruter.RuterConnectionException, e:
+        print e
         minutes = [-1, -1]
 
 def update_display():

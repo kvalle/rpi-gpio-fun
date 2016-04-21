@@ -15,7 +15,10 @@ class RuterConnectionException(Exception):
 def get_raw_data(stop_id):
     url_template = "http://reisapi.ruter.no/stopvisit/getdepartures/{stop_id}?json=true"
     url = url_template.format(stop_id=stop_id)
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except Exception, e:
+        raise RuterConnectionException("Unable to connect to Ruter API", e)
     
     if response.status_code != 200:
         # todo: log response.text
