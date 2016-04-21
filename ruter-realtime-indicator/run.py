@@ -9,20 +9,17 @@ import display
 import ruter
 import config
 
-# The list of destinations, and which one is active
+# The list of destinations, and which index is currently active
 destinations = config.destinations
-active_destination = destinations[0]
+active_index = 0
 
 # Pin assignments for buttons and LEDs
 # Same order as list of destinations
 buttons = [18, 16]
 leds = [10, 8]
 
-# Cache for number of minutes until next departures
-minutes = { 
-    dest: None 
-    for dest in destinations
-}
+# Cache for number of minutes until next departure
+minutes = [None, None]
 
 
 ## Code for updating everything
@@ -30,36 +27,23 @@ minutes = {
 def refresh_ruter_data():
     global minutes
     try:
-        next = ruter.minutes_until_next(config.stop_id)
-        minutes = {
-            dest: next[dest] if dest in next else None
-            for dest in destinations
-        }
+        departures = ruter.get_data(config.stop_id)
+        for index, dests in enumerate(destinations):
+            departure_times = [dep["wait"]
+                                for dep in departures
+                                if dep["destination"] in dests]
+            minutes[index] = min(departure_times) if departure_times else None
+            
+            print dests
+            print "   ", departure_times
     except ruter.RuterConnectionException, e:
-        minutes = None
-
-    print_minutes(minutes)
-
-def print_minutes(minutes):
-    if not minutes:
-        print "Unable to retrieve transit data."
-    else:
-        for dest in destinations:
-            mins = minutes[dest]
-            msg = "[{:2d} min]".format(mins) if mins else "[ long ]"
-            msg += " {}".format(dest.encode('UTF-8'))
-            print msg
-
+        minutes = [-1, -1]
 
 def update_display():
-    if not minutes:
-        display.set_char('E')
+    if None == minutes[active_index]:
+        display.set_char('H')
     else:
-        if not minutes[active_destination]:
-            display.set_char('H')
-        else:
-            mins = minutes[active_destination] 
-            display.set_number(mins)
+        display.set_number(minutes[active_index])
 
 def update():
     update_display()
@@ -68,15 +52,13 @@ def update():
 ## Code for reacting to button press
 
 def set_active_destination(channel):
-    global active_destination
-    index = buttons.index(channel)
-    active_destination = destinations[index]
+    global active_index
+    active_index = buttons.index(channel)
     update()
 
 def set_active_destination_led():
-    index = destinations.index(active_destination)
     for i, pin in enumerate(leds):
-        gpio.output(pin, gpio.HIGH if i == index else gpio.LOW)
+        gpio.output(pin, gpio.HIGH if i == active_index else gpio.LOW)
 
 ## Housekeeping methods
 

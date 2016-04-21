@@ -26,29 +26,24 @@ def get_raw_data(stop_id):
     except Exception, e:
         raise RuterConnectionException("Unable to parse JSON from Ruter", e)
 
-def get_next_departures(stop_id):
-    json = get_raw_data(stop_id)
-    result = collections.defaultdict(list)
-    for departure in json:
-        line = departure["MonitoredVehicleJourney"]["PublishedLineName"]
-        name = departure["MonitoredVehicleJourney"]["DestinationName"]
-        time_as_string = departure["MonitoredVehicleJourney"]["MonitoredCall"]["ExpectedArrivalTime"]
-        time = dateutil.parser.parse(time_as_string)
-
-        key = u" ".join([line, name])
-        result[key].append(time)
-    return dict(result)
-
 def minutes_until(timestamp):
     tzinfo = timestamp.tzinfo
     delta = timestamp - datetime.datetime.now(tzinfo)
     return int(delta.total_seconds() // 60)
 
-def minutes_until_next(stop_id):
-    departures = get_next_departures(stop_id)
-    return { 
-        dest: minutes_until(min(departures[dest])) for dest in departures
-    }
+def get_data(stop_id):
+    json = get_raw_data(stop_id)
+    data = []
+    for departure in json:
+        time_as_string = departure["MonitoredVehicleJourney"]["MonitoredCall"]["ExpectedArrivalTime"]
+        departure_time = dateutil.parser.parse(time_as_string)
+        data.append({
+            "line": departure["MonitoredVehicleJourney"]["PublishedLineName"],
+            "destination": departure["MonitoredVehicleJourney"]["DestinationName"],
+            "time": departure_time,
+            "wait": minutes_until(departure_time)
+        })
+    return data
 
 ## "main"
 
@@ -59,10 +54,18 @@ def format_time(dt):
     return "{} ({} min)".format(time, minutes)
 
 def main():
-    departures = get_next_departures(config.stop_id)
-    for name in departures:
-        print name.encode('utf-8')
-        print u"\n".join(["    " + format_time(t) for t in departures[name]])
+    for dep in get_data(config.stop_id):
+        try:
+            print dep["destination"].encode('utf-8'), 
+            print format_time(dep["time"])
+        except:
+            print "ERROR (probably utf-8 stuff)"
+        sys.stdout.flush()
 
 if __name__ == "__main__":
-    main()
+    import time
+    import sys
+
+    while True:
+        main()
+        time.sleep(30)

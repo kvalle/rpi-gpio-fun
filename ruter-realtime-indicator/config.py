@@ -1,8 +1,14 @@
 # encoding: UTF-8
 
-stop_id = 3011484
-stop_name = "Løren"
+# http://reisapi.ruter.no/stopvisit/getdepartures/3011490?json=true
+
+stop_id = 3011490
+stop_name = "Løren T"
+
 destinations = [
-    u"57 Carl Berners plass",
-    u"57 Økern T"
+	# direction west
+	["Bergkrystallen", "Bergkrystallen via Storo", "Ryen"],
+
+	# direction east
+	["Vestli"]
 ]
