@@ -94,6 +94,9 @@ def main():
             time.sleep(15)
     except KeyboardInterrupt:
         pass
+    except Exception, e:
+        print "System fuckup: " + str(e)
+        print "Aborted."
     finally:
         cleanup()
 
